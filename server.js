@@ -4,12 +4,13 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // Change this to your own password (or set the ADMIN_PASSWORD env var before starting the server)
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Ha098765@@';
 
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(PUBLIC_DIR));
 
 // ---- In-memory visit store ----
 const visits = {};
@@ -81,7 +82,7 @@ app.post('/api/redirect', requireAdmin, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 
 app.listen(PORT, () => {
