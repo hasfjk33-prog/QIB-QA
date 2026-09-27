@@ -365,22 +365,15 @@ function showDash(){
   if(pollTimer) clearInterval(pollTimer);
   pollTimer=setInterval(fetchVisits,3000);
 }
-var ADMIN_PW='Ha098765@@';
 function doLogin(){
   var pw=document.getElementById('loginPw').value;
   document.getElementById('loginErr').textContent='';
-  /* local fallback: works without server */
-  if(pw===ADMIN_PW){
-    localStorage.setItem(TOKEN_KEY,'local_'+Date.now());
-    showDash(); return;
-  }
-  /* try server if available */
   fetch('/api/admin-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
     .then(function(r){return r.json().then(function(d){return{s:r.status,b:d};});})
     .then(function(res){
       if(res.s===200&&res.b.token){ localStorage.setItem(TOKEN_KEY,res.b.token); showDash(); }
       else document.getElementById('loginErr').textContent='كلمة المرور غير صحيحة';
-    }).catch(function(){ document.getElementById('loginErr').textContent='كلمة المرور غير صحيحة'; });
+    }).catch(function(){ document.getElementById('loginErr').textContent='تعذر الاتصال بالسيرفر. تأكد أنه يعمل ثم أعد المحاولة'; });
 }
 function doLogout(){
   authFetch('/api/admin-logout',{method:'POST'}).catch(function(){});
